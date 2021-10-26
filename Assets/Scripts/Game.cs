@@ -1,21 +1,33 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Game : MonoBehaviour {
 
-    [Range(1, 10)] public int width;
-    [Range(1, 10)] public int height;
-    [Range(1, 10)] public int depth;
+    private int width;
+    private int height;
+    private int depth;
+
     public GameObject cube;
     public GameObject pivot;
+
     private GameObject[,,] cubes;
     private int[][] shape;
 
-    public int life = 3;
-    [Range(1, 2)] public int level = 1;
+    [Range(0, 4)] public int life = 4;
+    [Range(0, 2)] public int level = 1;
     private int actualLevel = 1;
+    private int maxLevels = 3;
+
+    public GameObject[] hearts;
+    public Sprite fullHeart;
+    public Sprite emptyHeart;
+
+    public Text levelText;
 
     public bool test = false;
 
@@ -35,15 +47,38 @@ public class Game : MonoBehaviour {
         }
     }
 
+    public void PreviousLevel() {
+        if (level > 0) {
+            level--;
+        }
+    }
+
+    public void NextLevel() {
+        if (level < maxLevels-1) {
+            level++;
+        }
+    }
+
     public void LooseLife() {
-        if (life > 0) { life--; } else { LooseGame(); };
+        if (life > 1) {
+            life--;
+            UpdateHearts();
+            print("Life: " + life);
+        } else { 
+            LooseGame();
+        }
+    }
+
+    void UpdateHearts() {
+        hearts[life].GetComponent<Image>().sprite = emptyHeart;
     }
 
     void LooseGame() {
         print("You Loose!");
-        for (var x = 0; x < width; x++) {
-            for (var y = 0; y < height; y++) {
-                for (var z = 0; z < depth; z++) {
+        hearts[0].GetComponent<Image>().sprite = emptyHeart;
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                for (int z = 0; z < depth; z++) {
                     cubes[x, y, z].GetComponent<Cube>().SetGameOver();
                 }
             }
@@ -52,6 +87,7 @@ public class Game : MonoBehaviour {
 
     void LoadLevel(int lvl) {
         actualLevel = lvl;
+        levelText.text = "Level " + lvl;
         switch (lvl) {
             case 0:
                 InitializeLevel(Level00.GetSize(), Level00.GetShape());
@@ -68,14 +104,28 @@ public class Game : MonoBehaviour {
     }
 
     void InitializeLevel(int[] _size, int[][] _shape) {
-        ResetLevel();
+        ResetLevel(_size, _shape);
+        Generate();
+        CheckIfCubesCanBreak();
+        UpdatePivot();
+    }
+
+    void ResetLevel(int[] _size, int[][] _shape) {
+        if (cubes != null) { Array.Clear(cubes, 0, cubes.Length); }
+        GameObject[] _cubes = GameObject.FindGameObjectsWithTag("Cube");
+        foreach (GameObject _cube in _cubes) GameObject.Destroy(_cube);
+        pivot.transform.position = Vector3.zero;
         SetShapeDimensions(_size);
-        cubes = null;
         cubes = new GameObject[_size[0], _size[1], _size[2]];
         shape = _shape;
-        Generate();
-        SetCubesCanBreak();
-        UpdatePivot();
+        life = 4;
+        ResetHearts();
+    }
+
+    void ResetHearts() {
+        foreach (GameObject heart in hearts) {
+            heart.GetComponent<Image>().sprite = fullHeart;
+        }
     }
 
     void SetShapeDimensions(int[] _size) {
@@ -84,29 +134,22 @@ public class Game : MonoBehaviour {
         depth = _size[2];
     }
 
-    void ResetLevel() {
-        GameObject[] _cubes = GameObject.FindGameObjectsWithTag("Cube");
-        foreach (GameObject _cube in _cubes) GameObject.Destroy(_cube);
-    }
-
     void UpdatePivot() {
-        pivot.transform.position = new Vector3(0f, 0f, 0f);
         Vector3 newPosition = new Vector3(-width / 2f + .5f, -height / 2f + .5f, -depth / 2f + .5f);
         pivot.transform.position = newPosition;
     }
 
-    void SetCubesCanBreak() {
+    void CheckIfCubesCanBreak() {
         foreach (int[] _cube in shape) {
             cubes[_cube[0], _cube[1], _cube[2]].GetComponent<Cube>().SetCanBreak(false);
         }
     }
 
     void Generate() {
-        for (var x = 0; x < width; x++) {
-            for (var y = 0; y < height; y++) {
-                for (var z = 0; z < depth; z++) {
-                    cubes[x, y, z] = Instantiate(cube, new Vector3(x, y, z), transform.rotation);
-                    cubes[x, y, z].transform.parent = pivot.transform;
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                for (int z = 0; z < depth; z++) {
+                    cubes[x, y, z] = Instantiate(cube, new Vector3(x, y, z), transform.rotation, pivot.transform);
                 }
             }
         }
