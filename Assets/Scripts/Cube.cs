@@ -8,10 +8,20 @@ public class Cube : MonoBehaviour {
     private bool isHurt = false;
     private bool gameOver = false;
 
+    AudioSource audioSource;
+    public AudioClip breakClip;
+    public AudioClip wrongClip;
+
+    void Start() {
+        audioSource = GetComponent<AudioSource>();
+    }
+
     public void Break() {
         if (!isHurt) {
             if (canBreak) {
-                gameObject.SetActive(false);
+                audioSource.Play();
+                gameObject.GetComponent<MeshRenderer>().enabled = false;
+                gameObject.GetComponent<BoxCollider>().enabled = false;
             } else {
                 LooseLife();
                 Shake(1f, .025f);
@@ -22,6 +32,8 @@ public class Cube : MonoBehaviour {
     }
 
     void LooseLife() {
+        audioSource.clip = wrongClip;
+        audioSource.Play();
         ChangeColor(Color.red);
         SendLooseLifeToGame();
         isHurt = true;
