@@ -19,6 +19,7 @@ public class Shape : MonoBehaviour {
             }
         } else if (Input.touchCount == 2) {
             Zoom(CalculatePinchDifference() * .01f);
+            //CalculatePinchRotation();
         }
     }
 
@@ -36,6 +37,14 @@ public class Shape : MonoBehaviour {
             Mathf.Clamp(transform.localScale.z + increment, 1f, maxZoom)
         );
         transform.localScale = newScale;
+    }
+
+    void CalculatePinchRotation() {
+        Touch touchZero = Input.GetTouch(0);
+        Touch touchOne = Input.GetTouch(1);
+
+        Quaternion rotationFromTouchToTouch = Quaternion.FromToRotation(touchZero.position, touchOne.position);
+        transform.localRotation = transform.localRotation * Quaternion.Inverse(rotationFromTouchToTouch);
     }
 
     float CalculatePinchDifference() {

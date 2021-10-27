@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Level00 {
-    private static int width = 10;
-    private static int height = 10;
-    private static int depth = 10;
+    private static int width = 8;
+    private static int height = 8;
+    private static int depth = 8;
 
     private static int[][] shape = new int[][] { };
 

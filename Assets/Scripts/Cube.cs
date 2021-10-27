@@ -12,16 +12,26 @@ public class Cube : MonoBehaviour {
     public AudioClip breakClip;
     public AudioClip wrongClip;
 
+    private Game game;
+    private Renderer matRenderer;
+    private MeshRenderer meshRenderer;
+    private BoxCollider boxCollider;
+
     void Start() {
         audioSource = GetComponent<AudioSource>();
+        game = GameObject.Find("Game").GetComponent<Game>();
+        matRenderer = gameObject.GetComponent<Renderer>();
+        meshRenderer = gameObject.GetComponent<MeshRenderer>();
+        boxCollider = gameObject.GetComponent<BoxCollider>();
     }
 
     public void Break() {
         if (!isHurt) {
             if (canBreak) {
                 audioSource.Play();
-                gameObject.GetComponent<MeshRenderer>().enabled = false;
-                gameObject.GetComponent<BoxCollider>().enabled = false;
+                meshRenderer.enabled = false;
+                boxCollider.enabled = false;
+                game.BreakCube();
             } else {
                 LooseLife();
                 Shake(1f, .025f);
@@ -40,31 +50,19 @@ public class Cube : MonoBehaviour {
     }
 
     void SendLooseLifeToGame() {
-        GameObject go = GameObject.Find("Game");
-        Game game = go.GetComponent<Game>();
         game.LooseLife();
     }
 
     void ChangeColor(Color color) {
-        gameObject.GetComponent<Renderer>().material.color = color;
+        matRenderer.material.color = color;
     }
 
     void Shake(float duration, float strength) {
         transform.DOShakePosition(duration, strength);
     }
 
-    void OnMouseDown() {
-        if (!gameOver) {
-            Break();
-        }
-    }
-
-    public void SetGameOver() {
-        gameOver = true;
-    }
-
-    public void SetCanBreak(bool b) {
-        canBreak = b;
-    }
-
+    void OnMouseDown() { if (!gameOver) Break(); }
+    public void SetGameOver() { gameOver = true; }
+    public void SetCanBreak(bool b) { canBreak = b; }
+    public void Win() { SetGameOver(); ChangeColor(Color.green); }
 }

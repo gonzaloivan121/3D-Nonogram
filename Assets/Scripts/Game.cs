@@ -23,7 +23,9 @@ public class Game : MonoBehaviour {
     private int actualLevel = 1;
     private int maxLevels = 3;
 
-    public GameObject[] hearts;
+    private bool breakMode = true;
+
+    public Image[] hearts;
     public Sprite fullHeart;
     public Sprite emptyHeart;
 
@@ -34,48 +36,42 @@ public class Game : MonoBehaviour {
     // Start is called before the first frame update
     void Start() {
         if (test) {
-            LoadLevel(0);
-        } else {
-            LoadLevel(level);
+            level = 0;
+            actualLevel = 0;
         }
+        LoadLevel(level);
     }
 
     // Update is called once per frame
     void Update() {
-        if (level != actualLevel) {
-            LoadLevel(level);
-        }
+        if (level != actualLevel) LoadLevel(level);
     }
 
     public void PreviousLevel() {
-        if (level > 0) {
-            level--;
-        }
+        if (level > 0) level--;
     }
 
     public void NextLevel() {
-        if (level < maxLevels-1) {
-            level++;
-        }
+        if (level < maxLevels-1) level++;
     }
 
     public void LooseLife() {
+        if (test) return;
         if (life > 1) {
             life--;
             UpdateHearts();
-            print("Life: " + life);
         } else { 
             LooseGame();
         }
     }
 
     void UpdateHearts() {
-        hearts[life].GetComponent<Image>().sprite = emptyHeart;
+        hearts[life].sprite = emptyHeart;
     }
 
     void LooseGame() {
         print("You Loose!");
-        hearts[0].GetComponent<Image>().sprite = emptyHeart;
+        hearts[0].sprite = emptyHeart;
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 for (int z = 0; z < depth; z++) {
@@ -87,7 +83,7 @@ public class Game : MonoBehaviour {
 
     void LoadLevel(int lvl) {
         actualLevel = lvl;
-        levelText.text = "Level " + lvl;
+        levelText.text = actualLevel == 0 ? "Test" : "Level " + lvl;
         switch (lvl) {
             case 0:
                 InitializeLevel(Level00.GetSize(), Level00.GetShape());
@@ -123,8 +119,8 @@ public class Game : MonoBehaviour {
     }
 
     void ResetHearts() {
-        foreach (GameObject heart in hearts) {
-            heart.GetComponent<Image>().sprite = fullHeart;
+        foreach (Image heart in hearts) {
+            heart.sprite = fullHeart;
         }
     }
 
@@ -153,6 +149,12 @@ public class Game : MonoBehaviour {
                 }
             }
         }
+    }
+
+    public void BreakCube() {
+        print("Broken in Game Script");
+
+
     }
 
 }
