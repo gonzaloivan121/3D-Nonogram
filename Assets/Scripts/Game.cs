@@ -19,17 +19,24 @@ public class Game : MonoBehaviour {
     private int[][] shape;
 
     [Range(0, 4)] public int life = 4;
-    [Range(0, 2)] public int level = 1;
+    [Range(0, 3)] public int level = 1;
     private int actualLevel = 1;
-    private int maxLevels = 3;
+    private int maxLevels = 4;
+    private int cubesLeft = 0;
+
+    private Cube previousCube;
+    private int previousLife;
 
     private bool breakMode = true;
+    private bool canRewind = true;
 
     public Image[] hearts;
     public Sprite fullHeart;
     public Sprite emptyHeart;
 
     public Text levelText;
+
+    public GameObject shapeController;
 
     public bool test = false;
 
@@ -45,6 +52,7 @@ public class Game : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         if (level != actualLevel) LoadLevel(level);
+        if (Input.GetMouseButtonDown(1)) Rewind();
     }
 
     public void PreviousLevel() {
@@ -81,9 +89,24 @@ public class Game : MonoBehaviour {
         }
     }
 
+    void WinGame() {
+        print("You Win!");
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                for (int z = 0; z < depth; z++) {
+                    cubes[x, y, z].GetComponent<Cube>().Win();
+                }
+            }
+        }
+        foreach (Image heart in hearts) {
+            heart.color = new Color(255, 200, 0);
+        }
+    }
+
     void LoadLevel(int lvl) {
         actualLevel = lvl;
         levelText.text = actualLevel == 0 ? "Test" : "Level " + lvl;
+        shapeController.transform.localScale = Vector3.one;
         switch (lvl) {
             case 0:
                 InitializeLevel(Level00.GetSize(), Level00.GetShape());
@@ -94,6 +117,9 @@ public class Game : MonoBehaviour {
             case 2:
                 InitializeLevel(Level02.GetSize(), Level02.GetShape());
                 break;
+            case 3:
+                InitializeLevel(Level03.GetSize(), Level03.GetShape());
+                break;
             default:
                 break;
         }
@@ -102,7 +128,7 @@ public class Game : MonoBehaviour {
     void InitializeLevel(int[] _size, int[][] _shape) {
         ResetLevel(_size, _shape);
         Generate();
-        CheckIfCubesCanBreak();
+        SetCubesCanBreak();
         UpdatePivot();
     }
 
@@ -128,6 +154,7 @@ public class Game : MonoBehaviour {
         width = _size[0];
         height = _size[1];
         depth = _size[2];
+        cubesLeft = width * height * depth;
     }
 
     void UpdatePivot() {
@@ -135,7 +162,7 @@ public class Game : MonoBehaviour {
         pivot.transform.position = newPosition;
     }
 
-    void CheckIfCubesCanBreak() {
+    void SetCubesCanBreak() {
         foreach (int[] _cube in shape) {
             cubes[_cube[0], _cube[1], _cube[2]].GetComponent<Cube>().SetCanBreak(false);
         }
@@ -151,10 +178,21 @@ public class Game : MonoBehaviour {
         }
     }
 
-    public void BreakCube() {
-        print("Broken in Game Script");
+    void Rewind() {
+        if (canRewind) {
+            previousCube.Unbreak();
+            canRewind = false;
+            if (previousLife != life) life++;
+        }
+    }
 
-
+    public void BreakCube(Cube _cube) {
+        previousCube = _cube;
+        previousLife = life;
+        cubesLeft--;
+        if (cubesLeft == shape.Length) {
+            WinGame();
+        }
     }
 
 }

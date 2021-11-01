@@ -618,6 +618,7 @@ MonoBehaviour:
   fullHeart: {fileID: 21300000, guid: 522ad074d60c6a542ac341a32e9834d8, type: 3}
   emptyHeart: {fileID: 21300000, guid: 7d21f05d027a27f44854e3da77f3f916, type: 3}
   levelText: {fileID: 1012879255}
+  shapeController: {fileID: 713503341}
   test: 0
 --- !u!4 &754439092
 Transform:
@@ -1129,7 +1130,7 @@ Transform:
   m_GameObject: {fileID: 1220571985}
   m_LocalRotation: {x: -0.7071066, y: -0, z: -0, w: 0.70710707}
   m_LocalPosition: {x: 0, y: 0, z: 16.11}
-  m_LocalScale: {x: 2, y: 1, z: 5}
+  m_LocalScale: {x: 5, y: 1, z: 5}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 7

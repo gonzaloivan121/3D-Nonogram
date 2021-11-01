@@ -31,7 +31,7 @@ public class Cube : MonoBehaviour {
                 audioSource.Play();
                 meshRenderer.enabled = false;
                 boxCollider.enabled = false;
-                game.BreakCube();
+                game.BreakCube(this);
             } else {
                 LooseLife();
                 Shake(1f, .025f);
@@ -39,6 +39,12 @@ public class Cube : MonoBehaviour {
         } else {
             Shake(1f, .025f);
         }
+    }
+
+    public void Unbreak() {
+        meshRenderer.enabled = true;
+        boxCollider.enabled = true;
+        isHurt = false;
     }
 
     void LooseLife() {
