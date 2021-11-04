@@ -42,6 +42,8 @@ public class Game : MonoBehaviour {
     public GameObject shapeController;
     public ToogleSwitch toogleSwitch;
 
+    public LevelSelectMenu menu;
+
     public bool test = false;
 
     // Start is called before the first frame update
@@ -50,6 +52,7 @@ public class Game : MonoBehaviour {
         if (test) {
             level = 0;
             actualLevel = 0;
+            menu.gameObject.SetActive(false);
         }
         heartColor = hearts[0].color;
         LoadLevel(level);
@@ -64,11 +67,19 @@ public class Game : MonoBehaviour {
     }
 
     public void PreviousLevel() {
-        if (level > 0) level--;
+        if (level > 1) level--;
     }
 
     public void NextLevel() {
         if (level < maxLevels-1) level++;
+    }
+
+    public void UpdateLevel(int _level) {
+        level = _level;
+    }
+
+    public void SelectLevel() {
+        menu.gameObject.SetActive(true);
     }
 
     public void LooseLife() {
@@ -102,6 +113,17 @@ public class Game : MonoBehaviour {
 
     void WinGame() {
         print("You Win!");
+        SetWinOnCubes();
+
+        foreach (Image heart in hearts) {
+            heart.color = winHeartColor;
+        }
+
+        pivot.transform.parent.transform.DOScale(new Vector3(1f, 1f, 1f), 4f);
+        pivot.transform.parent.transform.DORotate(new Vector3(0f, 0f, 0f),4f, RotateMode.FastBeyond360);
+    }
+
+    void SetWinOnCubes() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 for (int z = 0; z < depth; z++) {
@@ -109,14 +131,9 @@ public class Game : MonoBehaviour {
                 }
             }
         }
-        foreach (Image heart in hearts) {
-            heart.color = winHeartColor;
-        }
-
-        pivot.transform.parent.transform.DORotate(new Vector3(0f, 0f, 0f),2f);
     }
 
-    void LoadLevel(int lvl) {
+    public void LoadLevel(int lvl) {
         actualLevel = lvl;
         levelText.text = actualLevel == 0 ? "Test" : "Level " + lvl;
         shapeController.transform.localScale = Vector3.one;
@@ -149,7 +166,7 @@ public class Game : MonoBehaviour {
     void ResetLevel(int[] _size, int[][] _shape) {
         if (cubes != null) { Array.Clear(cubes, 0, cubes.Length); }
         GameObject[] _cubes = GameObject.FindGameObjectsWithTag("Cube");
-        foreach (GameObject _cube in _cubes) GameObject.Destroy(_cube);
+        foreach (GameObject _cube in _cubes) Destroy(_cube);
         pivot.transform.position = Vector3.zero;
         SetShapeDimensions(_size);
         cubes = new GameObject[_size[0], _size[1], _size[2]];
