@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 342554021195291374}
   - component: {fileID: 7021585928013978043}
   - component: {fileID: 7632871159370649722}
+  - component: {fileID: 1644269589461332403}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Cube
@@ -97,8 +98,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99ad656a8541338488aead5790217874, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  breakClip: {fileID: 0}
-  wrongClip: {fileID: 8300000, guid: 5248259ca019f6b43b357e1dc486923c, type: 3}
+  shakeTime: 0.25
+  shakeForce: 0.025
+  breakClip: {fileID: 8300000, guid: 37de68ecf89ca0b409be331f3e0e48e2, type: 3}
+  wrongClip: {fileID: 8300000, guid: 294e46457d3f94d4bb9a02790715a2ef, type: 3}
+  freezeClip: {fileID: 8300000, guid: 339169ed792f6e94f82acb43541bf622, type: 3}
+  unfreezeClip: {fileID: 8300000, guid: 56963d164e08dae458672f690841a32d, type: 3}
+  failColor: {r: 0.6886792, g: 0.13968495, b: 0.13968495, a: 1}
+  frozenColor: {r: 0.14901961, g: 0.32941177, b: 0.4862745, a: 1}
+  winColor: {r: 0.35686275, g: 0.54901963, b: 0.3529412, a: 1}
 --- !u!65 &7021585928013978043
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -208,6 +216,24 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1644269589461332403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 342554021195291369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 512190e688535434db073b7374c95392, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cubesInRow: 5
+  explosionForce: 1
+  explosionRadius: 4
+  explosionUpward: 0.4
+  explosionDuration: 1
+  prefab: {fileID: 342554021195291369, guid: c60fe99b773671c46b3641cc0b86aeee, type: 3}
 --- !u!1 &5317054766095306585
 GameObject:
   m_ObjectHideFlags: 0
