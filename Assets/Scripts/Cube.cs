@@ -7,15 +7,29 @@ public class Cube : MonoBehaviour {
     private bool canBreak = true;
     private bool isHurt = false;
     private bool gameOver = false;
+    private bool breakMode = true;
+    private bool frozen = false;
+
+    public float shakeTime = .25f;
+    public float shakeForce = .025f;
 
     AudioSource audioSource;
     public AudioClip breakClip;
     public AudioClip wrongClip;
+    public AudioClip freezeClip;
+    public AudioClip unfreezeClip;
+
+    public Color failColor;
+    public Color frozenColor;
+    public Color winColor;
 
     private Game game;
     private Renderer matRenderer;
     private MeshRenderer meshRenderer;
     private BoxCollider boxCollider;
+
+    private Color originalColor;
+    private Explosion explosionManager;
 
     void Start() {
         audioSource = GetComponent<AudioSource>();
@@ -23,22 +37,36 @@ public class Cube : MonoBehaviour {
         matRenderer = gameObject.GetComponent<Renderer>();
         meshRenderer = gameObject.GetComponent<MeshRenderer>();
         boxCollider = gameObject.GetComponent<BoxCollider>();
+        explosionManager = gameObject.GetComponent<Explosion>();
+        originalColor = matRenderer.material.color;
     }
 
     public void Break() {
         if (!isHurt) {
             if (canBreak) {
-                audioSource.Play();
-                meshRenderer.enabled = false;
-                boxCollider.enabled = false;
-                game.BreakCube(this);
+                BreakSequence();
             } else {
                 LooseLife();
-                Shake(1f, .025f);
+                Shake(shakeTime, shakeForce);
             }
         } else {
-            Shake(1f, .025f);
+            Shake(shakeTime, shakeForce);
         }
+    }
+
+    private void BreakSequence() {
+        PlaySound(breakClip);
+        meshRenderer.enabled = false;
+        boxCollider.enabled = false;
+        game.BreakCube(this);
+        explosionManager.Explode();
+    }
+
+    private void PlaySound(AudioClip a) {
+        if (audioSource.clip != a) {
+            audioSource.clip = a;
+        }
+        audioSource.Play();
     }
 
     public void Unbreak() {
@@ -50,7 +78,7 @@ public class Cube : MonoBehaviour {
     void LooseLife() {
         audioSource.clip = wrongClip;
         audioSource.Play();
-        ChangeColor(Color.red);
+        ChangeColor(failColor);
         SendLooseLifeToGame();
         isHurt = true;
     }
@@ -60,6 +88,7 @@ public class Cube : MonoBehaviour {
     }
 
     void ChangeColor(Color color) {
+        originalColor = matRenderer.material.color;
         matRenderer.material.color = color;
     }
 
@@ -67,8 +96,30 @@ public class Cube : MonoBehaviour {
         transform.DOShakePosition(duration, strength);
     }
 
-    void OnMouseDown() { if (!gameOver) Break(); }
+    void Freeze() {
+        Shake(shakeTime, shakeForce);
+        if (!frozen) {
+            PlaySound(freezeClip);
+            SetFrozen(true);
+            ChangeColor(frozenColor);
+        } else {
+            PlaySound(unfreezeClip);
+            SetFrozen(false);
+            ChangeColor(originalColor);
+        }
+    }
+
+    void OnMouseDown() {
+        if (!gameOver && breakMode && !frozen) {
+            Break();
+        } else if (!gameOver && !breakMode) {
+            Freeze();
+        }
+    }
+
+    public void ChangeGameMode(bool value) { breakMode = value; }
     public void SetGameOver() { gameOver = true; }
+    public void SetFrozen(bool b) { frozen = b; }
     public void SetCanBreak(bool b) { canBreak = b; }
-    public void Win() { SetGameOver(); ChangeColor(Color.green); }
+    public void Win() { SetGameOver(); ChangeColor(winColor); }
 }
