@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using DG.Tweening;
 using UnityEngine.UI;
 
 public class Game : MonoBehaviour {
@@ -21,7 +22,7 @@ public class Game : MonoBehaviour {
     [Range(0, 4)] public int life = 4;
     [Range(0, 3)] public int level = 1;
     private int actualLevel = 1;
-    private int maxLevels = 4;
+    private readonly int maxLevels = 4;
     private int cubesLeft = 0;
 
     private Cube previousCube;
@@ -33,26 +34,33 @@ public class Game : MonoBehaviour {
     public Image[] hearts;
     public Sprite fullHeart;
     public Sprite emptyHeart;
+    public Color heartColor;
+    public Color winHeartColor = new Color(255, 200, 0);
 
     public Text levelText;
 
     public GameObject shapeController;
+    public ToogleSwitch toogleSwitch;
 
     public bool test = false;
 
     // Start is called before the first frame update
     void Start() {
+        toogleSwitch.valueChanged += ChangeGameMode;
         if (test) {
             level = 0;
             actualLevel = 0;
         }
+        heartColor = hearts[0].color;
         LoadLevel(level);
     }
 
     // Update is called once per frame
     void Update() {
         if (level != actualLevel) LoadLevel(level);
-        if (Input.GetMouseButtonDown(1)) Rewind();
+        if (test) {
+            if (Input.GetMouseButtonDown(1)) Rewind();
+        }
     }
 
     public void PreviousLevel() {
@@ -64,17 +72,20 @@ public class Game : MonoBehaviour {
     }
 
     public void LooseLife() {
-        if (test) return;
         if (life > 1) {
             life--;
-            UpdateHearts();
+            UpdateHearts(false);
         } else { 
             LooseGame();
         }
     }
 
-    void UpdateHearts() {
-        hearts[life].sprite = emptyHeart;
+    void UpdateHearts(bool gainedLife) {
+        if (gainedLife) {
+            hearts[life-1].sprite = fullHeart;
+        } else {
+            hearts[life].sprite = emptyHeart;
+        }
     }
 
     void LooseGame() {
@@ -99,8 +110,10 @@ public class Game : MonoBehaviour {
             }
         }
         foreach (Image heart in hearts) {
-            heart.color = new Color(255, 200, 0);
+            heart.color = winHeartColor;
         }
+
+        pivot.transform.parent.transform.DORotate(new Vector3(0f, 0f, 0f),2f);
     }
 
     void LoadLevel(int lvl) {
@@ -130,6 +143,7 @@ public class Game : MonoBehaviour {
         Generate();
         SetCubesCanBreak();
         UpdatePivot();
+        ChangeGameMode(!breakMode);
     }
 
     void ResetLevel(int[] _size, int[][] _shape) {
@@ -147,6 +161,7 @@ public class Game : MonoBehaviour {
     void ResetHearts() {
         foreach (Image heart in hearts) {
             heart.sprite = fullHeart;
+            heart.color = heartColor;
         }
     }
 
@@ -180,9 +195,13 @@ public class Game : MonoBehaviour {
 
     void Rewind() {
         if (canRewind) {
-            previousCube.Unbreak();
+            if (previousLife != life) {
+                life++;
+                UpdateHearts(true);
+            } else {
+                previousCube.Unbreak();
+            }
             canRewind = false;
-            if (previousLife != life) life++;
         }
     }
 
@@ -192,6 +211,17 @@ public class Game : MonoBehaviour {
         cubesLeft--;
         if (cubesLeft == shape.Length) {
             WinGame();
+        }
+    }
+
+    private void ChangeGameMode(bool value) {
+        breakMode = !value;
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                for (int z = 0; z < depth; z++) {
+                    cubes[x, y, z].GetComponent<Cube>().ChangeGameMode(breakMode);
+                }
+            }
         }
     }
 
