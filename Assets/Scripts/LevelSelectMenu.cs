@@ -32,6 +32,13 @@ public class LevelSelectMenu : MonoBehaviour {
         gameObject.SetActive(false);
     }
 
+    public void UnlockNextLevel() {
+        if (unlockedLevels < totalLevels) {
+            unlockedLevels++;
+            Refresh();
+        }
+    }
+
     public void ClickNext() {
         currentPage += 1;
         Refresh();

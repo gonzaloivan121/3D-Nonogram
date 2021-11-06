@@ -20,9 +20,8 @@ public class Game : MonoBehaviour {
     private int[][] shape;
 
     [Range(0, 4)] public int life = 4;
-    [Range(0, 3)] public int level = 1;
-    private int actualLevel = 1;
-    private readonly int maxLevels = 4;
+    [Range(0, 4)] public int level = 1;
+    private int actualLevel = 0;
     private int cubesLeft = 0;
 
     private Cube previousCube;
@@ -53,9 +52,9 @@ public class Game : MonoBehaviour {
             level = 0;
             actualLevel = 0;
             menu.gameObject.SetActive(false);
+            LoadLevel(level);
         }
         heartColor = hearts[0].color;
-        LoadLevel(level);
     }
 
     // Update is called once per frame
@@ -71,7 +70,7 @@ public class Game : MonoBehaviour {
     }
 
     public void NextLevel() {
-        if (level < maxLevels-1) level++;
+        if (level < menu.unlockedLevels) level++;
     }
 
     public void UpdateLevel(int _level) {
@@ -114,6 +113,7 @@ public class Game : MonoBehaviour {
     void WinGame() {
         print("You Win!");
         SetWinOnCubes();
+        menu.UnlockNextLevel();
 
         foreach (Image heart in hearts) {
             heart.color = winHeartColor;
@@ -150,6 +150,9 @@ public class Game : MonoBehaviour {
             case 3:
                 InitializeLevel(Level03.GetSize(), Level03.GetShape());
                 break;
+            case 4:
+                InitializeLevel(Level04.GetSize(), Level04.GetShape());
+                break;
             default:
                 break;
         }
@@ -164,15 +167,27 @@ public class Game : MonoBehaviour {
     }
 
     void ResetLevel(int[] _size, int[][] _shape) {
+        ResetCubes(_size);
+        ResetShape(_shape);
+        life = 4;
+        ResetHearts();
+    }
+
+    void ResetCubes(int[] _size) {
         if (cubes != null) { Array.Clear(cubes, 0, cubes.Length); }
         GameObject[] _cubes = GameObject.FindGameObjectsWithTag("Cube");
         foreach (GameObject _cube in _cubes) Destroy(_cube);
-        pivot.transform.position = Vector3.zero;
+        ResetPivot();
         SetShapeDimensions(_size);
         cubes = new GameObject[_size[0], _size[1], _size[2]];
+    }
+
+    void ResetShape(int[][] _shape) {
         shape = _shape;
-        life = 4;
-        ResetHearts();
+    }
+
+    void ResetPivot() {
+        pivot.transform.position = Vector3.zero;
     }
 
     void ResetHearts() {
