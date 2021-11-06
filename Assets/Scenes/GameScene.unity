@@ -348,8 +348,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f93f7dd1e7313e4abf94aea4bd980d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalLevels: 3
-  unlockedLevels: 3
+  totalLevels: 4
+  unlockedLevels: 1
   nextButton: {fileID: 617061020}
   backButton: {fileID: 1808186176}
   game: {fileID: 754439091}
@@ -1874,7 +1874,7 @@ MonoBehaviour:
   cube: {fileID: 342554021195291369, guid: 782a28de8f986ea439f11a74c15e5314, type: 3}
   pivot: {fileID: 311764016}
   life: 4
-  level: 1
+  level: 0
   hearts:
   - {fileID: 1483786424}
   - {fileID: 202675100}
@@ -3564,6 +3564,7 @@ GameObject:
   - component: {fileID: 1220571988}
   - component: {fileID: 1220571987}
   - component: {fileID: 1220571986}
+  - component: {fileID: 1220571990}
   m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
@@ -3648,6 +3649,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+--- !u!114 &1220571990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1220571985}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cc6342b33b7bba44a471fd4025f2782, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1342822069
 GameObject:
   m_ObjectHideFlags: 0
