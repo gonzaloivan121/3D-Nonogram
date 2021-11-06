@@ -25,8 +25,10 @@ public class Shape : MonoBehaviour {
         } else if (Input.touchCount == 2) {
             touchZero = Input.GetTouch(0);
             touchOne = Input.GetTouch(1);
-            RotateShape();
-            Zoom(CalculatePinchDifference() * .0075f);
+            if (touchZero.phase.Equals(TouchPhase.Moved)) {
+                RotateShape();
+                Zoom(CalculatePinchDifference() * .0075f);
+            }
         }
     }
 
