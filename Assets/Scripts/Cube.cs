@@ -2,8 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Cube : MonoBehaviour {
+    private enum CubeMode {
+        Break, Frozen, GameOver, Hurt
+    }
+
+    private CubeMode mode = CubeMode.Break;
     private bool canBreak = true;
     private bool isHurt = false;
     private bool gameOver = false;
@@ -22,6 +28,8 @@ public class Cube : MonoBehaviour {
     public Color failColor;
     public Color frozenColor;
     public Color winColor;
+
+    public Transform numbersTransform;
 
     private Game game;
     private Renderer matRenderer;
@@ -58,6 +66,7 @@ public class Cube : MonoBehaviour {
         PlaySound(breakClip);
         meshRenderer.enabled = false;
         boxCollider.enabled = false;
+        numbersTransform.gameObject.SetActive(false);
         game.BreakCube(this);
         explosionManager.Explode();
     }
@@ -110,9 +119,15 @@ public class Cube : MonoBehaviour {
     }
 
     void OnMouseDown() {
-        if (!gameOver && breakMode && !frozen) {
+        if (EventSystem.current.IsPointerOverGameObject()) {
+            return;
+        }
+
+        if (gameOver) return;
+
+        if (breakMode && !frozen) {
             Break();
-        } else if (!gameOver && !breakMode) {
+        } else if (!breakMode) {
             Freeze();
         }
     }
@@ -121,5 +136,9 @@ public class Cube : MonoBehaviour {
     public void SetGameOver() { gameOver = true; }
     public void SetFrozen(bool b) { frozen = b; }
     public void SetCanBreak(bool b) { canBreak = b; }
-    public void Win() { SetGameOver(); ChangeColor(winColor); }
+
+    public void Win() {
+        SetGameOver();
+        ChangeColor(winColor);
+    }
 }

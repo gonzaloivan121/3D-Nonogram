@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
+using TMPro;
 
 public class Game : MonoBehaviour {
 
@@ -19,13 +20,13 @@ public class Game : MonoBehaviour {
     private GameObject[,,] cubes;
     private int[][] shape;
 
-    [Range(0, 4)] public int life = 4;
-    [Range(0, 4)] public int level = 1;
+    [Range(0, 4)] public int lives = 4;
+    [Range(0, 5)] public int level = 1;
     private int actualLevel = 0;
     private int cubesLeft = 0;
 
     private Cube previousCube;
-    private int previousLife;
+    private int previousLives;
 
     private bool breakMode = true;
     private bool canRewind = true;
@@ -44,6 +45,9 @@ public class Game : MonoBehaviour {
     public LevelSelectMenu menu;
 
     public bool test = false;
+    private bool isRunning = false;
+
+    public Timer timer;
 
     // Start is called before the first frame update
     void Start() {
@@ -51,6 +55,7 @@ public class Game : MonoBehaviour {
         if (test) {
             level = 0;
             actualLevel = 0;
+            menu.SetTestMode();
             menu.gameObject.SetActive(false);
             LoadLevel(level);
         }
@@ -62,6 +67,10 @@ public class Game : MonoBehaviour {
         if (level != actualLevel) LoadLevel(level);
         if (test) {
             if (Input.GetMouseButtonDown(1)) Rewind();
+        }
+
+        if (isRunning) {
+            timer.Run();
         }
     }
 
@@ -82,8 +91,8 @@ public class Game : MonoBehaviour {
     }
 
     public void LooseLife() {
-        if (life > 1) {
-            life--;
+        if (lives > 1) {
+            lives--;
             UpdateHearts(false);
         } else { 
             LooseGame();
@@ -92,15 +101,18 @@ public class Game : MonoBehaviour {
 
     void UpdateHearts(bool gainedLife) {
         if (gainedLife) {
-            hearts[life-1].sprite = fullHeart;
+            hearts[lives - 1].sprite = fullHeart;
         } else {
-            hearts[life].sprite = emptyHeart;
+            hearts[lives].sprite = emptyHeart;
         }
     }
 
     void LooseGame() {
         print("You Loose!");
         hearts[0].sprite = emptyHeart;
+
+        isRunning = false;
+
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 for (int z = 0; z < depth; z++) {
@@ -114,6 +126,8 @@ public class Game : MonoBehaviour {
         print("You Win!");
         SetWinOnCubes();
         menu.UnlockNextLevel();
+
+        isRunning = false;
 
         foreach (Image heart in hearts) {
             heart.color = winHeartColor;
@@ -134,6 +148,8 @@ public class Game : MonoBehaviour {
     }
 
     public void LoadLevel(int lvl) {
+        isRunning = true;
+        timer.Restart();
         actualLevel = lvl;
         levelText.text = actualLevel == 0 ? "Test" : "Level " + lvl;
         shapeController.transform.localScale = Vector3.one;
@@ -153,9 +169,16 @@ public class Game : MonoBehaviour {
             case 4:
                 InitializeLevel(Level04.GetSize(), Level04.GetShape());
                 break;
+            case 5:
+                InitializeLevel(Level05.GetSize(), Level05.GetShape());
+                break;
             default:
                 break;
         }
+    }
+
+    public void RestartLevel() {
+        LoadLevel(actualLevel);
     }
 
     void InitializeLevel(int[] _size, int[][] _shape) {
@@ -169,7 +192,7 @@ public class Game : MonoBehaviour {
     void ResetLevel(int[] _size, int[][] _shape) {
         ResetCubes(_size);
         ResetShape(_shape);
-        life = 4;
+        lives = 4;
         ResetHearts();
     }
 
@@ -227,8 +250,8 @@ public class Game : MonoBehaviour {
 
     void Rewind() {
         if (canRewind) {
-            if (previousLife != life) {
-                life++;
+            if (previousLives != lives) {
+                lives++;
                 UpdateHearts(true);
             } else {
                 previousCube.Unbreak();
@@ -239,7 +262,8 @@ public class Game : MonoBehaviour {
 
     public void BreakCube(Cube _cube) {
         previousCube = _cube;
-        previousLife = life;
+        previousLives = lives;
+        //UpdateNumbers();
         cubesLeft--;
         if (cubesLeft == shape.Length) {
             WinGame();
@@ -255,6 +279,17 @@ public class Game : MonoBehaviour {
                 }
             }
         }
+    }
+
+    private void UpdateNumbers() {
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                for (int z = 0; z < depth; z++) {
+                    Cube cube = cubes[x, y, z].GetComponent<Cube>();
+                }
+            }
+        }
+        Debug.Log("Updated Numbers");
     }
 
 }

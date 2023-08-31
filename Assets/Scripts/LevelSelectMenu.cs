@@ -18,12 +18,19 @@ public class LevelSelectMenu : MonoBehaviour {
 
     public Game game;
 
+    private bool test;
+
     void OnEnable() {
         levelButtons = GetComponentsInChildren<LevelButton>();
     }
 
     // Start is called before the first frame update
     void Start() {
+        Refresh();
+    }
+
+    public void SetTestMode() {
+        unlockedLevels = totalLevels;
         Refresh();
     }
 
@@ -40,12 +47,12 @@ public class LevelSelectMenu : MonoBehaviour {
     }
 
     public void ClickNext() {
-        currentPage += 1;
+        currentPage++;
         Refresh();
     }
 
     public void ClickBack() {
-        currentPage -= 1;
+        currentPage--;
         Refresh();
     }
 
